@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Prediction Result{% endblock %}
+
+{% block content %}
+    <h1>Prediction Result</h1>
+
+    <div class="result-card risk-{{ risk|lower }}">
+        <h2>{{ prediction }}</h2>
+        <p class="risk-label">Risk Level: <strong>{{ risk }}</strong></p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h2>{{ churn_proba }}%</h2>
+            <p>Churn Probability</p>
+        </div>
+        <div class="stat-card">
+            <h2>{{ no_churn_proba }}%</h2>
+            <p>No-Churn Probability</p>
+        </div>
+    </div>
+
+    <p class="model-note">Prediction made using: <strong>{{ model_used }}</strong></p>
+
+    <a href="/predict" class="btn">Predict Another Customer</a>
+{% endblock %}

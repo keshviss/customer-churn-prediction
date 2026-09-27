@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Confusion Matrices{% endblock %}
+
+{% block content %}
+    <h1>Confusion Matrices</h1>
+    <p class="description">
+        Confusion matrices for all four models on the test set. Rows represent actual class, 
+        columns represent predicted class. Pay particular attention to the bottom-left cell 
+        (False Negatives) — these are churners the model failed to catch.
+    </p>
+
+    <div class="matrix-grid">
+        {% for m in matrices %}
+        <div class="matrix-card">
+            <h3>{{ m.name }}</h3>
+            <img src="{{ url_for('static', filename='images/' + m.filename) }}" alt="{{ m.name }} confusion matrix">
+        </div>
+        {% endfor %}
+    </div>
+{% endblock %}

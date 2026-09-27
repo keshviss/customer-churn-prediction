@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Customer Segmentation{% endblock %}
+
+{% block content %}
+    <h1>Customer Segmentation</h1>
+    <p class="description">
+        Customers were grouped into 4 segments using K-Means clustering (K selected via the 
+        Elbow Method and Silhouette Score), based on tenure, monthly charges, and total charges. 
+        The churn rate column below is shown for context only — clustering itself did not use 
+        churn information.
+    </p>
+
+    <table class="comparison-table">
+        <thead>
+            <tr>
+                <th>Cluster</th>
+                <th>Profile</th>
+                <th>Avg Tenure</th>
+                <th>Avg Monthly Charges</th>
+                <th>Avg Total Charges</th>
+                <th>Customers</th>
+                <th>Churn Rate</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in clusters %}
+            <tr>
+                <td>Cluster {{ c.id }}</td>
+                <td>{{ c.label }}</td>
+                <td>{{ c.tenure }} mo</td>
+                <td>${{ c.monthly_charges }}</td>
+                <td>${{ c.total_charges }}</td>
+                <td>{{ c.count }}</td>
+                <td>{{ c.churn_rate }}%</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Cluster Visualization</h2>
+    <p class="description">Customers plotted by tenure vs monthly charges, colored by cluster.</p>
+    <div class="matrix-card">
+        <img src="{{ url_for('static', filename='images/cluster_scatter.png') }}" alt="Cluster scatter plot">
+    </div>
+
+    <h2>PCA Visualization</h2>
+    <p class="description">
+        The same clusters, projected onto 2 principal components (98% of variance retained), 
+        showing the four segments as distinct regions.
+    </p>
+    <div class="matrix-card">
+        <img src="{{ url_for('static', filename='images/pca_scatter.png') }}" alt="PCA scatter plot">
+    </div>
+{% endblock %}

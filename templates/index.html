@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Churn Prediction System{% endblock %}
+
+{% block content %}
+    <h1>Customer Churn Prediction & Segmentation System</h1>
+    <p class="description">
+        A machine learning web application that predicts customer churn risk and 
+        segments customers into meaningful groups using classical ML algorithms 
+        (Logistic Regression, Decision Tree, SVM, Random Forest, K-Means, and PCA).
+    </p>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h2>{{ total_records }}</h2>
+            <p>Total Customer Records</p>
+        </div>
+        <div class="stat-card">
+            <h2>{{ available_models|length }}</h2>
+            <p>ML Models Available</p>
+        </div>
+    </div>
+
+    <h3>Available Models:</h3>
+    <ul>
+        {% for model in available_models %}
+            <li>{{ model }}</li>
+        {% endfor %}
+    </ul>
+
+    <div class="nav-buttons">
+        <a href="/predict" class="btn">Predict Churn</a>
+        <a href="/clustering" class="btn btn-secondary">View Customer Segments</a>
+    </div>
+{% endblock %}

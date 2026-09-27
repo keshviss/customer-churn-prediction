@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Model Comparison{% endblock %}
+
+{% block content %}
+    <h1>Model Comparison</h1>
+    <p class="description">
+        Performance of all four classification models on the held-out test set (20% of data, 
+        stratified split). Metrics were validated using 5-fold cross-validation (see project report).
+    </p>
+
+    <table class="comparison-table">
+        <thead>
+            <tr>
+                <th>Model</th>
+                <th>Accuracy</th>
+                <th>Precision</th>
+                <th>Recall</th>
+                <th>F1-Score</th>
+                <th>ROC-AUC</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for m in metrics %}
+            <tr>
+                <td>{{ m.name }}</td>
+                <td>{{ "%.2f"|format(m.accuracy * 100) }}%</td>
+                <td>{{ "%.2f"|format(m.precision * 100) }}%</td>
+                <td>{{ "%.2f"|format(m.recall * 100) }}%</td>
+                <td>{{ "%.4f"|format(m.f1) }}</td>
+                <td>{{ "%.4f"|format(m.roc_auc) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="highlight-box">
+        <p><strong>Best Accuracy:</strong> {{ best_accuracy }}</p>
+        <p><strong>Best F1-Score:</strong> {{ best_f1 }}</p>
+        <p><strong>Best ROC-AUC:</strong> {{ best_roc_auc }}</p>
+    </div>
+
+    <p class="note">
+        Note: no single model is declared universally "best." Logistic Regression achieves the 
+        strongest overall balance (highest F1 and ROC-AUC), but model choice in practice should 
+        depend on whether minimizing missed churners (recall) or minimizing false alarms 
+        (precision) matters more for the business use case.
+    </p>
+{% endblock %}
