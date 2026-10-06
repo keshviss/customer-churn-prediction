@@ -1,25 +1,62 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" id="html-root" data-theme="light">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Customer Churn Prediction{% endblock %}</title>
+
+    <!-- Preconnect to Google Fonts for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- We load the fonts in the CSS file, but a fallback preconnect here helps -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <nav class="navbar">
-        <div class="nav-brand">Churn Prediction System</div>
+        <a class="nav-brand" href="/" aria-label="Customer Churn Prediction home">
+            <svg class="brand-mark" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+                <rect x="1" y="1" width="38" height="38" rx="11" fill="var(--accent)"/>
+                <path d="M11 22.5c2.1-5.2 4.4-7.8 7-7.8 3.8 0 4.5 10.6 8 10.6 1.1 0 2.1-.9 3-2.7" stroke="#fffefa" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="29" cy="22.5" r="2.2" fill="#fffefa"/>
+            </svg>
+            <span>Customer Churn Prediction</span>
+        </a>
         <div class="nav-links">
-            <a href="/">Home</a>
-            <a href="/predict">Predict</a>
-            <a href="/models">Model Comparison</a>
-            <a href="/confusion-matrices">Confusion Matrices</a>
-            <a href="/clustering">Segmentation</a>
-            <a href="/about">About</a>
+            <a href="/" {% if request.path == '/' %}class="active"{% endif %}>Overview</a>
+            <a href="/predict" {% if request.path == '/predict' %}class="active"{% endif %}>Predict</a>
+            <a href="/models" {% if request.path == '/models' %}class="active"{% endif %}>Models</a>
+            <a href="/confusion-matrices" {% if request.path == '/confusion-matrices' %}class="active"{% endif %}>Evaluation</a>
+            <a href="/clustering" {% if request.path == '/clustering' %}class="active"{% endif %}>Segments</a>
+            <a href="/about" {% if request.path == '/about' %}class="active"{% endif %}>Method</a>
+            <button class="theme-toggle" onclick="toggleTheme()">◐ Theme</button>
         </div>
     </nav>
 
-    <div class="container">
+    <div class="container fade-in-up">
         {% block content %}{% endblock %}
     </div>
+
+    <script>
+        function applyTheme(theme) {
+            document.getElementById('html-root').setAttribute('data-theme', theme);
+            const btn = document.querySelector('.theme-toggle');
+            if (btn) {
+                btn.textContent = theme === 'dark' ? '◐ Light mode' : '◑ Dark mode';
+            }
+        }
+
+        function toggleTheme() {
+            const current = document.getElementById('html-root').getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('theme', next);
+            applyTheme(next);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const saved = localStorage.getItem('theme') || 'light';
+            applyTheme(saved);
+        });
+    </script>
 </body>
 </html>

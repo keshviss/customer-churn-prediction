@@ -3,8 +3,8 @@
 {% block title %}Confusion Matrices{% endblock %}
 
 {% block content %}
-    <h1>Confusion Matrices</h1>
-    <p class="description">
+    <h1 class="fade-in-up">Confusion Matrices</h1>
+    <p class="description fade-in-up" style="animation-delay: 0.1s;">
         Confusion matrices for all four models on the test set. Rows represent actual class, 
         columns represent predicted class. Pay particular attention to the bottom-left cell 
         (False Negatives) — these are churners the model failed to catch.
@@ -12,9 +12,9 @@
 
     <div class="matrix-grid">
         {% for m in matrices %}
-        <div class="matrix-card">
-            <h3>{{ m.name }}</h3>
-            <img src="{{ url_for('static', filename='images/' + m.filename) }}" alt="{{ m.name }} confusion matrix">
+        <div class="matrix-card glass-panel fade-in-up" style="animation-delay: 0.{{ loop.index + 1 }}s; padding: 1.5rem;">
+            <h3 style="font-family: 'Outfit', sans-serif; color: var(--text-color); margin-bottom: 1rem; border-bottom: 1px solid var(--card-border); padding-bottom: 0.5rem;">{{ m.name }}</h3>
+            <img src="{{ url_for('static', filename='images/' + m.filename) }}" alt="{{ m.name }} confusion matrix" style="width: 100%; border-radius: 8px;">
         </div>
         {% endfor %}
     </div>

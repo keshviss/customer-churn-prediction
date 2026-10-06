@@ -3,53 +3,118 @@
 {% block title %}Customer Segmentation{% endblock %}
 
 {% block content %}
-    <h1>Customer Segmentation</h1>
-    <p class="description">
-        Customers were grouped into 4 segments using K-Means clustering (K selected via the 
-        Elbow Method and Silhouette Score), based on tenure, monthly charges, and total charges. 
-        The churn rate column below is shown for context only — clustering itself did not use 
+    <h1 class="fade-in-up">Customer Segmentation</h1>
+    <p class="description fade-in-up" style="animation-delay: 0.1s;">
+        Customers were grouped into 4 segments using K-Means clustering (K selected via the
+        Elbow Method and Silhouette Score), based on tenure, monthly charges, and total charges.
+        The churn rate column below is shown for context only — clustering itself did not use
         churn information.
     </p>
 
-    <table class="comparison-table">
-        <thead>
-            <tr>
-                <th>Cluster</th>
-                <th>Profile</th>
-                <th>Avg Tenure</th>
-                <th>Avg Monthly Charges</th>
-                <th>Avg Total Charges</th>
-                <th>Customers</th>
-                <th>Churn Rate</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for c in clusters %}
-            <tr>
-                <td>Cluster {{ c.id }}</td>
-                <td>{{ c.label }}</td>
-                <td>{{ c.tenure }} mo</td>
-                <td>${{ c.monthly_charges }}</td>
-                <td>${{ c.total_charges }}</td>
-                <td>{{ c.count }}</td>
-                <td>{{ c.churn_rate }}%</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <h2>Cluster Visualization</h2>
-    <p class="description">Customers plotted by tenure vs monthly charges, colored by cluster.</p>
-    <div class="matrix-card">
-        <img src="{{ url_for('static', filename='images/cluster_scatter.png') }}" alt="Cluster scatter plot">
+    <div class="glass-panel fade-in-up" style="animation-delay: 0.2s; padding: 0; overflow: hidden; margin-bottom: 2rem;">
+        <table class="comparison-table" style="margin-bottom: 0;">
+            <thead>
+                <tr>
+                    <th>Cluster</th>
+                    <th>Profile</th>
+                    <th>Avg Tenure</th>
+                    <th>Avg Monthly Charges</th>
+                    <th>Avg Total Charges</th>
+                    <th>Customers</th>
+                    <th>Churn Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in clusters %}
+                <tr>
+                    <td><strong style="color: var(--accent);">Cluster {{ c.id }}</strong></td>
+                    <td style="font-weight: 500;">{{ c.label }}</td>
+                    <td>{{ c.tenure }} mo</td>
+                    <td>${{ c.monthly_charges }}</td>
+                    <td>${{ c.total_charges }}</td>
+                    <td>{{ c.count }}</td>
+                    <td><span style="color: {% if c.churn_rate > 30 %}var(--risk-high){% elif c.churn_rate > 15 %}var(--risk-medium){% else %}var(--risk-low){% endif %}; font-weight: 700;">{{ c.churn_rate }}%</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 
-    <h2>PCA Visualization</h2>
-    <p class="description">
-        The same clusters, projected onto 2 principal components (98% of variance retained), 
-        showing the four segments as distinct regions.
+    <h2 class="fade-in-up" style="animation-delay: 0.3s;">Cluster Visualization (Interactive)</h2>
+    <p class="description fade-in-up" style="animation-delay: 0.3s;">Hover over any point to see its exact tenure and monthly charges. Click a legend entry to hide/show a cluster.</p>
+    <div class="glass-panel fade-in-up" style="animation-delay: 0.4s; margin-bottom: 2.5rem; padding: 1rem;">
+        <div id="clusterPlot" style="height: 450px;"></div>
+    </div>
+
+    <h2 class="fade-in-up" style="animation-delay: 0.5s;">PCA Visualization (Interactive)</h2>
+    <p class="description fade-in-up" style="animation-delay: 0.5s;">
+        The same clusters, projected onto 2 principal components (98% of variance retained).
     </p>
-    <div class="matrix-card">
-        <img src="{{ url_for('static', filename='images/pca_scatter.png') }}" alt="PCA scatter plot">
+    <div class="glass-panel fade-in-up" style="animation-delay: 0.6s; margin-bottom: 2.5rem; padding: 1rem;">
+        <div id="pcaPlot" style="height: 450px;"></div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.27.0/plotly.min.js"></script>
+    <script>
+        const clusterColors = ['#4f46e5', '#10b981', '#f59e0b', '#ef4444'];
+
+        function renderPlots() {
+            const isDark = document.getElementById('html-root').getAttribute('data-theme') === 'dark';
+            const fontColor = isDark ? '#f8fafc' : '#1e293b';
+            const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+
+            const baseLayout = {
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                font: { color: fontColor, family: 'Inter' },
+                xaxis: { gridcolor: gridColor, zerolinecolor: gridColor },
+                yaxis: { gridcolor: gridColor, zerolinecolor: gridColor },
+                margin: { t: 20, r: 20, b: 50, l: 60 },
+                legend: { orientation: 'h', y: -0.2 }
+            };
+
+            fetch('/api/cluster-data')
+                .then(res => res.json())
+                .then(data => {
+                    const traces = [0, 1, 2, 3].map(cid => ({
+                        x: data.points.filter(p => p.cluster === cid).map(p => p.tenure),
+                        y: data.points.filter(p => p.cluster === cid).map(p => p.monthly_charges),
+                        mode: 'markers',
+                        type: 'scattergl',
+                        name: 'Cluster ' + cid,
+                        marker: { color: clusterColors[cid], size: 6, opacity: 0.7, line: { width: 1, color: isDark ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)' } }
+                    }));
+                    Plotly.newPlot('clusterPlot', traces, {
+                        ...baseLayout,
+                        xaxis: { ...baseLayout.xaxis, title: 'Tenure (months)' },
+                        yaxis: { ...baseLayout.yaxis, title: 'Monthly Charges ($)' }
+                    }, { responsive: true, displayModeBar: false });
+
+                    const pcaTraces = [0, 1, 2, 3].map(cid => ({
+                        x: data.points.filter(p => p.cluster === cid).map(p => p.pc1),
+                        y: data.points.filter(p => p.cluster === cid).map(p => p.pc2),
+                        mode: 'markers',
+                        type: 'scattergl',
+                        name: 'Cluster ' + cid,
+                        marker: { color: clusterColors[cid], size: 6, opacity: 0.7, line: { width: 1, color: isDark ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)' } }
+                    }));
+                    Plotly.newPlot('pcaPlot', pcaTraces, {
+                        ...baseLayout,
+                        xaxis: { ...baseLayout.xaxis, title: 'PC1 (72.7% variance)' },
+                        yaxis: { ...baseLayout.yaxis, title: 'PC2 (25.3% variance)' }
+                    }, { responsive: true, displayModeBar: false });
+                });
+        }
+
+        renderPlots();
+
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'data-theme') {
+                    renderPlots();
+                }
+            });
+        });
+        observer.observe(document.getElementById('html-root'), { attributes: true });
+    </script>
 {% endblock %}

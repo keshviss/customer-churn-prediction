@@ -3,47 +3,125 @@
 {% block title %}Model Comparison{% endblock %}
 
 {% block content %}
-    <h1>Model Comparison</h1>
-    <p class="description">
-        Performance of all four classification models on the held-out test set (20% of data, 
-        stratified split). Metrics were validated using 5-fold cross-validation (see project report).
+    <h1 class="fade-in-up">Model Comparison</h1>
+    <p class="description fade-in-up" style="animation-delay: 0.1s;">
+        Performance of all four classification models on the held-out test set (20% of data,
+        stratified split). Metrics were validated using 5-fold cross-validation.
     </p>
 
-    <table class="comparison-table">
-        <thead>
-            <tr>
-                <th>Model</th>
-                <th>Accuracy</th>
-                <th>Precision</th>
-                <th>Recall</th>
-                <th>F1-Score</th>
-                <th>ROC-AUC</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for m in metrics %}
-            <tr>
-                <td>{{ m.name }}</td>
-                <td>{{ "%.2f"|format(m.accuracy * 100) }}%</td>
-                <td>{{ "%.2f"|format(m.precision * 100) }}%</td>
-                <td>{{ "%.2f"|format(m.recall * 100) }}%</td>
-                <td>{{ "%.4f"|format(m.f1) }}</td>
-                <td>{{ "%.4f"|format(m.roc_auc) }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <div class="highlight-box">
-        <p><strong>Best Accuracy:</strong> {{ best_accuracy }}</p>
-        <p><strong>Best F1-Score:</strong> {{ best_f1 }}</p>
-        <p><strong>Best ROC-AUC:</strong> {{ best_roc_auc }}</p>
+    <div class="glass-panel fade-in-up" style="animation-delay: 0.2s; padding: 0; overflow: hidden; margin-bottom: 2rem;">
+        <table class="comparison-table" style="margin-bottom: 0;">
+            <thead>
+                <tr>
+                    <th>Model</th>
+                    <th>Accuracy</th>
+                    <th>Precision</th>
+                    <th>Recall</th>
+                    <th>F1-Score</th>
+                    <th>ROC-AUC</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in metrics %}
+                <tr>
+                    <td>{{ m.name }}</td>
+                    <td>{{ "%.2f"|format(m.accuracy * 100) }}%</td>
+                    <td>{{ "%.2f"|format(m.precision * 100) }}%</td>
+                    <td>{{ "%.2f"|format(m.recall * 100) }}%</td>
+                    <td>{{ "%.4f"|format(m.f1) }}</td>
+                    <td>{{ "%.4f"|format(m.roc_auc) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 
-    <p class="note">
-        Note: no single model is declared universally "best." Logistic Regression achieves the 
-        strongest overall balance (highest F1 and ROC-AUC), but model choice in practice should 
-        depend on whether minimizing missed churners (recall) or minimizing false alarms 
+    <div class="highlight-box fade-in-up" style="animation-delay: 0.3s; background: var(--card-bg); backdrop-filter: var(--glass-blur);">
+        <p style="margin-bottom: 0.5rem;"><strong style="color: var(--accent);">Best Accuracy:</strong> {{ best_accuracy }}</p>
+        <p style="margin-bottom: 0.5rem;"><strong style="color: var(--accent);">Best F1-Score:</strong> {{ best_f1 }}</p>
+        <p><strong style="color: var(--accent);">Best ROC-AUC:</strong> {{ best_roc_auc }}</p>
+    </div>
+
+    <h2 class="fade-in-up" style="animation-delay: 0.4s;">Visual Comparison</h2>
+    <div class="glass-panel fade-in-up" style="animation-delay: 0.5s; margin-bottom: 1.5rem;">
+        <canvas id="metricsChart"></canvas>
+    </div>
+
+    <p class="note fade-in-up" style="animation-delay: 0.6s;">
+        Note: no single model is declared universally "best." Logistic Regression achieves the
+        strongest overall balance (highest F1 and ROC-AUC), but model choice in practice should
+        depend on whether minimizing missed churners (recall) or minimizing false alarms
         (precision) matters more for the business use case.
     </p>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script>
+        const modelNames = {{ metrics | map(attribute='name') | list | tojson }};
+        const accuracyData = {{ metrics | map(attribute='accuracy') | list | tojson }};
+        const precisionData = {{ metrics | map(attribute='precision') | list | tojson }};
+        const recallData = {{ metrics | map(attribute='recall') | list | tojson }};
+        const f1Data = {{ metrics | map(attribute='f1') | list | tojson }};
+        const rocAucData = {{ metrics | map(attribute='roc_auc') | list | tojson }};
+
+        const ctx = document.getElementById('metricsChart').getContext('2d');
+
+        function initChart() {
+            const isDark = document.getElementById('html-root').getAttribute('data-theme') === 'dark';
+            const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+            const textColor = isDark ? '#94a3b8' : '#64748b';
+
+            if (window.myChart) {
+                window.myChart.destroy();
+            }
+
+            window.myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: modelNames,
+                    datasets: [
+                        { label: 'Accuracy', data: accuracyData, backgroundColor: '#4f46e5' },
+                        { label: 'Precision', data: precisionData, backgroundColor: '#6366f1' },
+                        { label: 'Recall', data: recallData, backgroundColor: '#f59e0b' },
+                        { label: 'F1-Score', data: f1Data, backgroundColor: '#10b981' },
+                        { label: 'ROC-AUC', data: rocAucData, backgroundColor: '#ef4444' }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: textColor, font: { family: 'Inter' } } },
+                        tooltip: {
+                            callbacks: {
+                                label: (item) => `${item.dataset.label}: ${(item.raw * 100).toFixed(2)}%`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1,
+                            ticks: { color: textColor, font: { family: 'Inter' }, callback: (v) => (v * 100) + '%' },
+                            grid: { color: gridColor }
+                        },
+                        x: {
+                            ticks: { color: textColor, font: { family: 'Outfit', weight: '600' } },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        initChart();
+
+        // Re-init chart when theme changes to update text colors
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'data-theme') {
+                    initChart();
+                }
+            });
+        });
+        observer.observe(document.getElementById('html-root'), { attributes: true });
+    </script>
 {% endblock %}

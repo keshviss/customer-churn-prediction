@@ -3,25 +3,40 @@
 {% block title %}Prediction Result{% endblock %}
 
 {% block content %}
-    <h1>Prediction Result</h1>
+    <a href="/predict" class="btn btn-secondary fade-in-up" style="margin-bottom: 2rem;">
+        ‹ Back to Predict
+    </a>
 
-    <div class="result-card risk-{{ risk|lower }}">
+    <div class="glass-panel result-card fade-in-up {% if risk == 'LOW' %}risk-low{% elif risk == 'MEDIUM' %}risk-medium{% else %}risk-high{% endif %}" style="animation-delay: 0.1s;">
+        <p class="risk-label">Predicted Outcome:</p>
         <h2>{{ prediction }}</h2>
-        <p class="risk-label">Risk Level: <strong>{{ risk }}</strong></p>
+
+        <div style="margin: 2rem 0; display: flex; justify-content: center; gap: 3rem;">
+            <div>
+                <p class="risk-label">Churn Probability</p>
+                <div style="font-size: 2rem; font-weight: 700; font-family: 'Outfit', sans-serif;">{{ churn_proba }}%</div>
+            </div>
+            <div>
+                <p class="risk-label">Retention Probability</p>
+                <div style="font-size: 2rem; font-weight: 700; font-family: 'Outfit', sans-serif;">{{ no_churn_proba }}%</div>
+            </div>
+        </div>
+
+        <p class="risk-label" style="font-size: 1.2rem;">Risk Category: <strong style="padding: 0.4rem 1rem; border-radius: 20px; background: rgba(128,128,128,0.15);">{{ risk }}</strong></p>
+
+        <div class="model-note">
+            Model used: <strong>{{ model_used }}</strong>
+        </div>
     </div>
 
-    <div class="stats-grid">
-        <div class="stat-card">
-            <h2>{{ churn_proba }}%</h2>
-            <p>Churn Probability</p>
-        </div>
-        <div class="stat-card">
-            <h2>{{ no_churn_proba }}%</h2>
-            <p>No-Churn Probability</p>
-        </div>
+    <div class="glass-panel fade-in-up" style="animation-delay: 0.2s;">
+        <h3>What does this mean?</h3>
+        {% if risk == 'LOW' %}
+            <p class="description">This customer exhibits characteristics of loyalty. They are highly likely to remain subscribed. Focus on upselling premium features or loyalty rewards.</p>
+        {% elif risk == 'MEDIUM' %}
+            <p class="description">This customer shows some signs of potential churn. A proactive check-in or targeted promotional offer might solidify their commitment to the service.</p>
+        {% else %}
+            <p class="description"><strong>High alert.</strong> This customer closely matches the profile of users who have recently cancelled. Immediate retention strategies (e.g., discounts, personalized support) are recommended.</p>
+        {% endif %}
     </div>
-
-    <p class="model-note">Prediction made using: <strong>{{ model_used }}</strong></p>
-
-    <a href="/predict" class="btn">Predict Another Customer</a>
 {% endblock %}

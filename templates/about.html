@@ -3,51 +3,61 @@
 {% block title %}About / Methodology{% endblock %}
 
 {% block content %}
-    <h1>About This Project</h1>
+    <h1 class="fade-in-up">About This Project</h1>
 
-    <h2>Dataset</h2>
-    <p class="description">
-        This project uses the Telco Customer Churn dataset — 7,043 customer records with 21 
-        attributes, including demographics, subscribed services, contract details, and billing 
-        information. The target variable, Churn, indicates whether a customer left the company 
-        (26.5% churned, 73.5% stayed).
-    </p>
+    <div class="glass-panel fade-in-up" style="animation-delay: 0.1s; margin-bottom: 2rem;">
+        <h2 style="margin-top: 0;">Dataset</h2>
+        <p class="description" style="margin-bottom: 0;">
+            This project uses the Telco Customer Churn dataset — 7,043 customer records with 21
+            attributes, including demographics, subscribed services, contract details, and billing
+            information. The target variable, Churn, indicates whether a customer left the company
+            (26.5% churned, 73.5% stayed).
+        </p>
+    </div>
 
-    <h2>Preprocessing</h2>
-    <p class="description">
-        TotalCharges was converted from text to numeric, with 11 missing values (all corresponding 
-        to new customers with zero tenure) filled with 0. Numerical features were standardized 
-        using StandardScaler, and categorical features were one-hot encoded. Preprocessing was 
-        fit only on the training data and applied to the test data separately, to avoid data 
-        leakage. Data was split 80/20 with stratification to preserve the churn class ratio.
-    </p>
+    <div class="glass-panel fade-in-up" style="animation-delay: 0.2s; margin-bottom: 2rem;">
+        <h2 style="margin-top: 0;">Preprocessing</h2>
+        <p class="description" style="margin-bottom: 0;">
+            TotalCharges was converted from text to numeric, with 11 missing values (all corresponding
+            to new customers with zero tenure) filled with 0. Numerical features were standardized
+            using StandardScaler, and categorical features were one-hot encoded. Preprocessing was
+            fit only on the training data and applied to the test data separately, to avoid data
+            leakage. Data was split 80/20 with stratification to preserve the churn class ratio.
+        </p>
+    </div>
 
-    <h2>Algorithms Used</h2>
-    <ul class="algo-list">
-        <li><strong>Logistic Regression</strong> — linear baseline classifier, predicts churn probability via the sigmoid function.</li>
-        <li><strong>Decision Tree</strong> — rule-based classifier, tuned via cross-validation to control overfitting.</li>
-        <li><strong>Support Vector Machine (SVM)</strong> — RBF-kernel classifier that finds an optimal separating boundary.</li>
-        <li><strong>Random Forest</strong> — ensemble of decision trees combined via bagging and majority voting.</li>
-        <li><strong>K-Means Clustering</strong> — unsupervised algorithm used to segment customers by tenure and spending.</li>
-        <li><strong>Principal Component Analysis (PCA)</strong> — used to reduce dimensionality for 2D cluster visualization.</li>
-    </ul>
+    <div class="glass-panel fade-in-up" style="animation-delay: 0.3s; margin-bottom: 2rem;">
+        <h2 style="margin-top: 0;">Algorithms Used</h2>
+        <ul class="algo-list" style="margin-bottom: 0; color: var(--text-color);">
+            <li><strong style="color: var(--accent);">Logistic Regression</strong> — linear baseline classifier, predicts churn probability via the sigmoid function.</li>
+            <li><strong style="color: var(--accent);">Decision Tree</strong> — rule-based classifier, tuned via cross-validation to control overfitting.</li>
+            <li><strong style="color: var(--accent);">Support Vector Machine (SVM)</strong> — RBF-kernel classifier that finds an optimal separating boundary.</li>
+            <li><strong style="color: var(--accent);">Random Forest</strong> — ensemble of decision trees combined via bagging and majority voting.</li>
+            <li><strong style="color: var(--accent);">K-Means Clustering</strong> — unsupervised algorithm used to segment customers by tenure and spending.</li>
+            <li><strong style="color: var(--accent);">Principal Component Analysis (PCA)</strong> — used to reduce dimensionality for 2D cluster visualization.</li>
+        </ul>
+    </div>
 
-    <h2>Evaluation Metrics</h2>
-    <p class="description">
-        Models were evaluated using Accuracy, Precision, Recall, F1-score, and ROC-AUC, along with 
-        confusion matrices and 5-fold stratified cross-validation. Given the class imbalance in 
-        the dataset, accuracy alone was not used to declare any model "best" — recall (catching 
-        actual churners) and ROC-AUC (threshold-independent ranking quality) were weighted 
-        alongside precision and F1.
-    </p>
+    <div class="glass-panel fade-in-up" style="animation-delay: 0.4s; margin-bottom: 2rem;">
+        <h2 style="margin-top: 0;">Evaluation Metrics</h2>
+        <p class="description" style="margin-bottom: 0;">
+            Models were evaluated using Accuracy, Precision, Recall, F1-score, and ROC-AUC, along with
+            confusion matrices and 5-fold stratified cross-validation. Given the class imbalance in
+            the dataset, accuracy alone was not used to declare any model "best" — recall (catching
+            actual churners) and ROC-AUC (threshold-independent ranking quality) were weighted
+            alongside precision and F1.
+        </p>
+    </div>
 
-    <h2>Limitations</h2>
-    <ul class="algo-list">
-        <li>The model is trained on this specific dataset and may not generalize to other companies or customer bases.</li>
-        <li>Churn predictions are statistical estimates, not certainties.</li>
-        <li>This project does not establish causal reasons for churn — only observed correlations.</li>
-        <li>The training data may contain inherent biases from how it was originally collected.</li>
-        <li>Risk category thresholds (LOW/MEDIUM/HIGH) used on the Predict page are defined for this project's demonstration purposes and are not derived from a validated business cost-benefit analysis.</li>
-        <li>This system is intended as an academic demonstration, not a production-ready business decision-making tool.</li>
-    </ul>
+    <div class="glass-panel fade-in-up" style="animation-delay: 0.5s; margin-bottom: 2rem; border-color: rgba(239, 68, 68, 0.3);">
+        <h2 style="margin-top: 0; color: var(--risk-high);">Limitations</h2>
+        <ul class="algo-list" style="margin-bottom: 0; color: var(--text-color);">
+            <li>The model is trained on this specific dataset and may not generalize to other companies or customer bases.</li>
+            <li>Churn predictions are statistical estimates, not certainties.</li>
+            <li>This project does not establish causal reasons for churn — only observed correlations.</li>
+            <li>The training data may contain inherent biases from how it was originally collected.</li>
+            <li>Risk category thresholds (LOW/MEDIUM/HIGH) used on the Predict page are defined for this project's demonstration purposes and are not derived from a validated business cost-benefit analysis.</li>
+            <li>This system is intended as an academic demonstration, not a production-ready business decision-making tool.</li>
+        </ul>
+    </div>
 {% endblock %}

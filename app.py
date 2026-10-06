@@ -172,5 +172,24 @@ def clustering():
 def about():
     return render_template('about.html')
 
+@app.route('/api/cluster-data')
+def cluster_data():
+    import json
+    with open('data/cluster_points.json') as f:
+        data = json.load(f)
+    return data
+
+@app.route('/api/quick-predict', methods=['POST'])
+def quick_predict():
+    try:
+        data = request.get_json()
+        input_df = pd.DataFrame([data])
+        input_processed = preprocessor.transform(input_df)
+        model = MODELS['Logistic Regression']
+        churn_proba = model.predict_proba(input_processed)[0][1]
+        return {'churn_proba': round(churn_proba * 100, 2), 'risk': get_risk_category(churn_proba)}
+    except Exception as e:
+        return {'error': str(e)}, 400
+
 if __name__ == '__main__':
     app.run(debug=True)

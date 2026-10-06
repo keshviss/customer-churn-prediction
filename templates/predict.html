@@ -3,51 +3,142 @@
 {% block title %}Predict Churn{% endblock %}
 
 {% block content %}
-    <h1>Predict Customer Churn</h1>
+    <h1 class="fade-in-up">Predict Customer Churn</h1>
+    <p class="description fade-in-up" style="animation-delay: 0.1s;">Analyze customer profiles to predict churn risk using our trained ML models.</p>
+
+    <div class="quick-fill-row fade-in-up" style="animation-delay: 0.2s;">
+        <button type="button" class="btn-sample btn-high-risk" onclick="fillSample('high')">
+            △ Try High-Risk Example
+        </button>
+        <button type="button" class="btn-sample btn-low-risk" onclick="fillSample('low')">
+            ✓ Try Low-Risk Example
+        </button>
+    </div>
+
+    <div class="glass-panel whatif-card fade-in-up" style="animation-delay: 0.3s;">
+        <h3>Quick What-If Analysis</h3>
+        <p class="description" style="font-size: 0.9rem; margin-bottom: 1.5rem;">Drag to see how churn risk shifts for a typical fiber customer — no form submission needed.</p>
+        <div class="slider-row">
+            <label>Tenure: <span id="tenureVal" style="color: var(--accent);">12</span> months</label>
+            <input type="range" id="tenureSlider" min="0" max="72" value="12" oninput="updateWhatIf()">
+        </div>
+        <div class="slider-row">
+            <label>Monthly Charges: $<span id="chargeVal" style="color: var(--accent);">70</span></label>
+            <input type="range" id="chargeSlider" min="18" max="120" value="70" oninput="updateWhatIf()">
+        </div>
+        <div class="whatif-result" id="whatifResult">Churn risk: <strong>--</strong></div>
+    </div>
+
+    <script>
+        function updateWhatIf() {
+            const tenure = document.getElementById('tenureSlider').value;
+            const charges = parseFloat(document.getElementById('chargeSlider').value);
+            document.getElementById('tenureVal').textContent = tenure;
+            document.getElementById('chargeVal').textContent = charges;
+
+            const payload = {
+                gender: 'Female', SeniorCitizen: 0, Partner: 'No', Dependents: 'No',
+                tenure: parseInt(tenure), PhoneService: 'Yes', MultipleLines: 'No',
+                InternetService: 'Fiber optic', OnlineSecurity: 'No', OnlineBackup: 'No',
+                DeviceProtection: 'No', TechSupport: 'No', StreamingTV: 'Yes', StreamingMovies: 'Yes',
+                Contract: 'Month-to-month', PaperlessBilling: 'Yes', PaymentMethod: 'Electronic check',
+                MonthlyCharges: charges, TotalCharges: charges * Math.max(tenure, 1)
+            };
+
+            fetch('/api/quick-predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                const resultEl = document.getElementById('whatifResult');
+                if (data.error) {
+                    resultEl.innerHTML = 'Error computing prediction';
+                    return;
+                }
+                const riskColor = data.risk === 'HIGH' ? 'var(--risk-high)' : (data.risk === 'LOW' ? 'var(--risk-low)' : 'var(--risk-medium)');
+                resultEl.innerHTML = `Churn risk: <strong style="color: ${riskColor}; font-size: 1.4rem;">${data.churn_proba}%</strong> (${data.risk})`;
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', updateWhatIf);
+    </script>
 
     {% if error %}
-        <p class="error-message">{{ error }}</p>
+        <div class="error-message fade-in-up">{{ error }}</div>
     {% endif %}
 
-    <form method="POST" action="/predict" class="predict-form">
-
-        <div class="form-group">
-            <label for="model_choice">Select Model</label>
+    <form method="POST" action="/predict" class="glass-panel predict-form fade-in-up" style="animation-delay: 0.4s;">
+        <div class="form-group" style="max-width: 300px;">
+            <label for="model_choice">Select Intelligence Engine</label>
             <select name="model_choice" id="model_choice" required>
                 {% for name in model_names %}
-                    <option value="{{ name }}">{{ name }}</option>
+                    <option value="{{ name }}" {% if name == 'Random Forest' %}selected{% endif %}>{{ name }}</option>
                 {% endfor %}
             </select>
         </div>
 
-        <h3>Customer Details</h3>
+        <h3>Customer Demographics & Services</h3>
+        <div class="form-grid">
+            {% for field, options in categories.items() %}
+                <div class="form-group">
+                    <label for="{{ field }}">{{ field }}</label>
+                    <select name="{{ field }}" id="{{ field }}" required>
+                        {% for option in options %}
+                            <option value="{{ option }}">{{ option }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            {% endfor %}
+        </div>
 
-        {% for field, options in categories.items() %}
+        <h3>Account & Billing Details</h3>
+        <div class="form-grid">
             <div class="form-group">
-                <label for="{{ field }}">{{ field }}</label>
-                <select name="{{ field }}" id="{{ field }}" required>
-                    {% for option in options %}
-                        <option value="{{ option }}">{{ option }}</option>
-                    {% endfor %}
-                </select>
+                <label for="tenure">Tenure (months)</label>
+                <input type="number" name="tenure" id="tenure" min="0" max="100" required>
             </div>
-        {% endfor %}
-
-        <div class="form-group">
-            <label for="tenure">Tenure (months)</label>
-            <input type="number" name="tenure" id="tenure" min="0" max="100" required>
+            <div class="form-group">
+                <label for="MonthlyCharges">Monthly Charges ($)</label>
+                <input type="number" step="0.01" name="MonthlyCharges" id="MonthlyCharges" min="0" required>
+            </div>
+            <div class="form-group">
+                <label for="TotalCharges">Total Charges ($)</label>
+                <input type="number" step="0.01" name="TotalCharges" id="TotalCharges" min="0" required>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label for="MonthlyCharges">Monthly Charges ($)</label>
-            <input type="number" step="0.01" name="MonthlyCharges" id="MonthlyCharges" min="0" required>
-        </div>
-
-        <div class="form-group">
-            <label for="TotalCharges">Total Charges ($)</label>
-            <input type="number" step="0.01" name="TotalCharges" id="TotalCharges" min="0" required>
-        </div>
-
-        <button type="submit" class="btn">Predict Churn</button>
+        <button type="submit" class="btn" style="margin-top: 1.5rem; width: 100%;">
+            Execute Prediction Model
+        </button>
     </form>
+
+    <script>
+        const sampleCustomers = {
+            high: {
+                gender: 'Female', SeniorCitizen: 'No', Partner: 'No', Dependents: 'No',
+                tenure: 2, PhoneService: 'Yes', MultipleLines: 'No', InternetService: 'Fiber optic',
+                OnlineSecurity: 'No', OnlineBackup: 'No', DeviceProtection: 'No', TechSupport: 'No',
+                StreamingTV: 'Yes', StreamingMovies: 'Yes', Contract: 'Month-to-month',
+                PaperlessBilling: 'Yes', PaymentMethod: 'Electronic check', MonthlyCharges: 95.00, TotalCharges: 190.00
+            },
+            low: {
+                gender: 'Male', SeniorCitizen: 'No', Partner: 'Yes', Dependents: 'Yes',
+                tenure: 60, PhoneService: 'Yes', MultipleLines: 'Yes', InternetService: 'DSL',
+                OnlineSecurity: 'Yes', OnlineBackup: 'Yes', DeviceProtection: 'Yes', TechSupport: 'Yes',
+                StreamingTV: 'No', StreamingMovies: 'No', Contract: 'Two year',
+                PaperlessBilling: 'No', PaymentMethod: 'Bank transfer (automatic)', MonthlyCharges: 45.00, TotalCharges: 2700.00
+            }
+        };
+
+        function fillSample(type) {
+            const data = sampleCustomers[type];
+            for (const field in data) {
+                const el = document.getElementById(field);
+                if (el) el.value = data[field];
+            }
+            window.scrollTo({ top: document.querySelector('.predict-form').offsetTop - 100, behavior: 'smooth' });
+        }
+    </script>
 {% endblock %}

@@ -1,35 +1,71 @@
 {% extends "base.html" %}
 
-{% block title %}Home - Churn Prediction System{% endblock %}
+{% block title %}Overview | Customer Churn Prediction{% endblock %}
 
 {% block content %}
-    <h1>Customer Churn Prediction & Segmentation System</h1>
-    <p class="description">
-        A machine learning web application that predicts customer churn risk and 
-        segments customers into meaningful groups using classical ML algorithms 
-        (Logistic Regression, Decision Tree, SVM, Random Forest, K-Means, and PCA).
-    </p>
+    <main class="glass-panel home-shell fade-in-up">
+        <div class="home-hero-grid">
+            <section class="home-copy">
+                <p class="home-kicker">Customer retention · Analytics</p>
+                <h1>Understand the signals behind customer churn.</h1>
+                <p class="description">
+                    Explore churn risk, compare prediction models, and see how customer groups differ. Built around the Telco Customer Churn dataset for a clear, hands-on look at retention analysis.
+                </p>
 
-    <div class="stats-grid">
-        <div class="stat-card">
-            <h2>{{ total_records }}</h2>
-            <p>Total Customer Records</p>
+                <div class="home-actions">
+                    <a href="/predict" class="btn">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V5M4 19h16"/><path d="m7 15 4-4 3 2 5-6"/></svg>
+                        Explore a customer
+                    </a>
+                    <a href="/models" class="btn btn-secondary">Review model results</a>
+                </div>
+            </section>
+
+            <aside class="dataset-snapshot" aria-label="Churn split in the Telco dataset">
+                <div class="snapshot-heading">
+                    <span class="snapshot-symbol" aria-hidden="true">◒</span>
+                    <span>Dataset snapshot</span>
+                </div>
+                <p class="snapshot-value">26.5<span>%</span></p>
+                <p class="snapshot-caption">of customers in the dataset left the service</p>
+                <div class="split-bar" role="img" aria-label="26.5 percent churned, 73.5 percent stayed">
+                    <span class="split-churned"></span><span class="split-retained"></span>
+                </div>
+                <div class="split-legend">
+                    <span><i class="legend-dot churn-dot"></i> Churned <b>26.5%</b></span>
+                    <span><i class="legend-dot retained-dot"></i> Stayed <b>73.5%</b></span>
+                </div>
+                <p class="snapshot-footnote">Telco Customer Churn · 7,043 records</p>
+            </aside>
         </div>
-        <div class="stat-card">
-            <h2>{{ available_models|length }}</h2>
-            <p>ML Models Available</p>
+
+        <div class="home-rule"></div>
+        <div class="stats-grid">
+            <div class="stat-card glass-panel fade-in-up" style="animation-delay: 0.08s;">
+                <h2 class="counter" data-target="{{ total_records }}">0</h2>
+                <p>Customer records in the dataset</p>
+            </div>
+            <div class="stat-card glass-panel fade-in-up" style="animation-delay: 0.14s;">
+                <h2 class="counter" data-target="{{ available_models|length }}">0</h2>
+                <p>Classification models available</p>
+            </div>
         </div>
-    </div>
+    </main>
 
-    <h3>Available Models:</h3>
-    <ul>
-        {% for model in available_models %}
-            <li>{{ model }}</li>
-        {% endfor %}
-    </ul>
-
-    <div class="nav-buttons">
-        <a href="/predict" class="btn">Predict Churn</a>
-        <a href="/clustering" class="btn btn-secondary">View Customer Segments</a>
-    </div>
+    <script>
+        function animateCounter(el) {
+            const target = Number(el.dataset.target || 0);
+            const start = performance.now();
+            const duration = 700;
+            function update(now) {
+                const progress = Math.min((now - start) / duration, 1);
+                el.textContent = Math.round(target * progress).toLocaleString();
+                if (progress < 1) requestAnimationFrame(update);
+            }
+            requestAnimationFrame(update);
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.counter').forEach(animateCounter);
+        });
+    </script>
 {% endblock %}
